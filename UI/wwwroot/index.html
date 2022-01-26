@@ -1,0 +1,56 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <style type="text/css">
+        input {
+            font-size: 20px;
+        }
+    </style>
+    <title>Google reCPATCHA Implementation - Codingsonata.com</title>
+</head>
+<body>
+
+    <h1>Signup Form</h1>
+    <form id="formSignup" action="" method="post">
+        <input type="email" id="txtEmail" placeholder="Email Address" /> <br /><br />
+        <input type="password" id="txtPassword" placeholder="Password" /> <br /><br />
+        <input type="password" id="txtConfirmPassword" placeholder="Confirm Password" /> <br /><br />
+        <input type="text" id="txtName" placeholder="Full Name" /> <br /><br />
+        <input type="hidden" id="hdnGoogleRecaptcha" required><br />
+        <p>reCAPTCHA Token (Valid for 2 minutes)</p>
+        <label id="lblValue">---</label><br /><br />
+        <button type="submit" id="btnSignup">Sign up</button>
+    </form>
+    <script src="https://www.google.com/recaptcha/api.js?render=YOUR_RECAPTCHA_API_KEY"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $(document).on('click', '#btnSignup', function (e) {
+                e.preventDefault();
+                grecaptcha.ready(function () {
+                    grecaptcha.execute('YOUR_RECAPTCHA_API_KEY', { action: 'signup' }).then(function (token) {
+                        $('#hdnGoogleRecaptcha').val(token);
+                        $('#lblValue').html(token);
+
+                        $.post("https://localhost:7229/api/signup",
+                            {
+                                email: $("#txtEmail").val(),
+                                password: $("#txtPassword").val(),
+                                confirmPassword: $("#txtConfirmPassword").val(),
+                                name: $("#txtName").val(),
+                                recaptchaToken: hdnGoogleRecaptcha.val()
+
+                            })
+                            .done(function (result, status, xhr) {
+                                $("#message").html(result)
+                            })
+                            .fail(function (xhr, status, error) {
+                                $("#message").html("Result: " + status + " " + error + " " + xhr.status + " " + xhr.statusText)
+                            });
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>
